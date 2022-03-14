@@ -11,10 +11,22 @@ class Package:
         # import data from CSV into HashTable
         with open('csv/packages.csv') as packages_file:
             csv_reader = csv.reader(packages_file, delimiter=',')
-            for row in csv_reader:
-                print(f'\t{row[0]} {row[1]} {row[2]}')
-                self.package_hash_table.insert(row[0], row)
+            for data in csv_reader:
+                id = data[0]
+                address = data[1]
+                city = data[2]
+                state = data[3]
+                zip_code = data[4]
+                due_datetime = data[5]
+                weight = data[6]
+                notes = data[7]
+                status = "AT HUB"
+                delivery_start_time = ''
 
+                self.package_hash_table.insert(id, [id, address, city, state, zip_code, due_datetime, weight, notes,
+                                                    status, delivery_start_time])
 print("Package Loaded")
 obj = Package()
-print(obj.package_hash_table.table)
+# print(obj.package_hash_table.table)
+
+print(obj.package_hash_table.lookup('38'))

@@ -66,3 +66,11 @@ class HashTable:
             # print (key_value)
             if kv[0] == key:
                 bucket_list.remove([kv[0], kv[1]])
+
+    # Returns entire hashmap if successful
+    # Pre Condition: None
+    # Post Condition: Returns all values in Hash Table
+    # Time Complexity: O(N)
+    # Space Complexity: O(N)
+    def all_table(self):
+        return self.table
