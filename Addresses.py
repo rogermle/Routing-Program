@@ -8,6 +8,8 @@ addressData = 'csv/addresses.csv'
 distance_dict = {}
 address_dict = {}
 
+# Time Complexity O(N)
+# Space Complexity O(N)
 def loadAddressData(addressData):
     with open(addressData) as addressCSV:
         addresses = list(csv.reader(addressCSV, delimiter=','))
