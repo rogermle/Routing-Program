@@ -21,12 +21,14 @@ class Package:
                 weight = data[6]
                 notes = data[7]
                 status = "AT HUB"
-                delivery_start_time = ''
+                delivery_time = ''
+                package = [id, address, city, state, zip_code, due_datetime, weight, notes,
+                                                    status, delivery_time]
+                priority = False
 
-                self.package_hash_table.insert(id, [id, address, city, state, zip_code, due_datetime, weight, notes,
-                                                    status, delivery_start_time])
+                self.package_hash_table.insert(id, package)
 print("Package Loaded")
 obj = Package()
-# print(obj.package_hash_table.table)
+print(obj.package_hash_table.table)
 
-print(obj.package_hash_table.lookup('38'))
+print(obj.package_hash_table.lookup('33'))
