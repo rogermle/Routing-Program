@@ -42,15 +42,10 @@ def loadDistanceData(distanceData):
 def distanceBetween(fromAddress, toAddress):
 
     try:
-        distance = distance_dict[f'{address_dict[fromAddress]}{address_dict[toAddress]}']
-        if distance == '':
-            distance = distance_dict[address_dict.index(toAddress)][address_dict.index(fromAddress)]
+        return distance_dict[f'{address_dict[fromAddress]}{address_dict[toAddress]}']
     except:
-        print("Error Condition")
-
-    return distance
-
+        print("Error Condition: Invalid Address")
 
 loadAddressData(addressData)
 loadDistanceData(distanceData)
-print(distanceBetween('1060 Dalton Ave S','3595 Main St')) # Returns 6.0 as expected
+# print(distanceBetween('1060 Dalton Ave S','3595 Main St')) # Returns 6.0 as expected
