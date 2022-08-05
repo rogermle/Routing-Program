@@ -4,31 +4,14 @@ import csv
 
 
 class Package:
-    def __init__(self):
-        print("Display Package")
-        self.package_hash_table = HashTable()
-
-        # import data from CSV into HashTable
-        with open('csv/packages.csv') as packages_file:
-            csv_reader = csv.reader(packages_file, delimiter=',')
-            for data in csv_reader:
-                id = data[0]
-                address = data[1]
-                city = data[2]
-                state = data[3]
-                zip_code = data[4]
-                due_datetime = data[5]
-                weight = data[6]
-                notes = data[7]
-                status = "AT HUB"
-                delivery_time = ''
-                package = [id, address, city, state, zip_code, due_datetime, weight, notes,
-                                                    status, delivery_time]
-                priority = False
-
-                self.package_hash_table.insert(id, package)
-print("Package Loaded")
-obj = Package()
-print(obj.package_hash_table.table)
-
-print(obj.package_hash_table.lookup('33'))
+    def __init__(self, id, address, city, state, zip_code, due_datetime, weight, notes):
+        self.id = id
+        self.address = address
+        self.city = city
+        self.state = state
+        self.zip_code = zip_code
+        self.due_datetime = due_datetime
+        self.weight = weight
+        self.notes = notes
+        self.status = "AT HUB"
+        self.delivery_time = ''
