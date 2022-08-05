@@ -4,6 +4,7 @@
 # Modified for Key:Value
 
 # HashTable class using chaining.
+import Constant
 class HashTable:
     # Constructor with optional initial capacity parameter.
     # Assigns all buckets with an empty list.
@@ -47,11 +48,11 @@ class HashTable:
         # get the bucket list where this key would be.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
-        # print(bucket_list)
+        #print(bucket_list)
 
         # search for the key in the bucket list
         for kv in bucket_list:
-            # print (key_value)
+            #print (kv)
             if kv[0] == key:
                 return kv[1]  # value
         return None
@@ -74,3 +75,35 @@ class HashTable:
     # Space Complexity: O(N)
     def all_table(self):
         return self.table
+
+def loadPackageData():
+    def loadPackageData():
+        # import data from CSV into HashTable
+        with open('csv/packages.csv') as packages_file:
+            csv_reader = csv.reader(packages_file, delimiter=',')
+            
+            packageHashTable = HashTable()
+            for data in csv_reader:
+                id = data[Constant.ID]
+                address = data[Constant.ADDRESS]
+                city = data[Constant.CITY]
+                state = data[Constant.STATE]
+                zip_code = data[Constant.ZIP_CODE]
+                due_datetime = data[Constant.DUE_DATETIME]
+                weight = data[Constant.WEIGHT]
+                notes = data[Constant.NOTES]
+                status = Constant.AT_HUB_STATUS
+                delivery_time = ''
+                package = [id, address, city, state, zip_code, due_datetime, weight, notes,
+                                                    status, delivery_time]
+                
+                #if 'Must be' in data[Constant.NOTES]:
+                    #self.delivery1.append(package)
+                #if 'EOD' != data[Constant.DUE_DATETIME] and 'NA' == data[Constant.NOTES]:
+                    #self.delivery1.append(package)
+
+                packageHashTable.insert(id, package)
+        return packageHashTable
+
+#Package Hashtable
+packageHashtable = loadPackageData(packageFilename)
