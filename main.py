@@ -12,6 +12,8 @@ from datetime import timedelta
 import time
 from HashTable import HashTable
 
+truck_departure_times = ['08:05', '09:15', '10:20']
+
 # Package Constants
 
 ID = 0
@@ -103,6 +105,13 @@ def main():
     elif (choice == "2"):
         print("Date Time Lookup")
         time = input("Please enter a time after 08:00:00 to search package statuses (in military time e.g 0900): ")
+        desired_time = datetime.strptime(time, '%H:%M').time()
+        addressChangeTime = datetime.strptime('10:20', '%H:%M').time()
+
+        # Range function is Exclusive
+        for package_id in range(1, 41):
+            delivery_time = packageHashTable.lookup(package_id).delivery_time
+
 
 
 
@@ -116,7 +125,7 @@ def main():
 def pretty_print_package(id):
     package = packageHashTable.lookup(int(id))
     print(
-        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M %p")}')
+        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}')
 
 
 def print_all_packages(time):
@@ -129,16 +138,14 @@ def loadPackages():
     with open('csv/packages.csv') as packages_file:
         csv_reader = csv.reader(packages_file, delimiter=',')
         for data in csv_reader:
-            id = data[0]
-            address = data[1]
-            city = data[2]
-            state = data[3]
-            zip_code = data[4]
-            due_datetime = data[5]
-            weight = data[6]
-            notes = data[7]
-            status = "AT HUB"
-            delivery_time = ''
+            id = data[ID]
+            address = data[ADDRESS]
+            city = data[CITY]
+            state = data[STATE]
+            zip_code = data[ZIP_CODE]
+            due_datetime = data[DUE_DATETIME]
+            weight = data[WEIGHT]
+            notes = data[NOTES]
             # Create Package object
             package = Package(id, address, city, state, zip_code, due_datetime, weight, notes)
 
@@ -166,15 +173,19 @@ def deliver_packages(truck):
 
         truck.trip_total += values[closest_package_index]
         truck.elapsed_time += values[closest_package_index]/SPEED
+        truck.total_time_in_min += values[closest_package_index]/SPEED * SECONDS_PER_MIN
         truck.curr_location = closest_package.address
         #print(closest_package)
+        delivered_time = datetime.combine(datetime.today().date(),
+        datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
         closest_package.status = "Delivered"
-        closest_package.delivery_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+        closest_package.delivery_time = delivered_time
         #Update Global
         packageHashTable.insert(closest_package.id, closest_package)
         pretty_print_package(closest_package.id)
         #print(truck.trip_total)
         truck.payload.remove(closest_package)
+        truck.last_package_delivery = delivered_time
         del delivery_distance_matrix[keys[closest_package_index]]
 
         # Update distance matrix location after each delivery
@@ -207,9 +218,9 @@ def loadTruck(truck, packages):
 loadPackages()
 # print(packageHashTable.lookup(33))
 
-truck1 = Truck('08:05')
-truck2 = Truck('09:15')
-truck3 = Truck('10:20')
+truck1 = Truck(truck_departure_times[0])
+truck2 = Truck(truck_departure_times[1])
+truck3 = Truck(truck_departure_times[2])
 
 # Package to Adjust Address
 
@@ -230,9 +241,9 @@ deliver_packages(truck2)
 deliver_packages(truck3)
 
 total_truck_miles = truck1.trip_total + truck2.trip_total + truck3.trip_total
-#total_elapsed_time = truck1.elapsed_time + truck2.elapsed_time + truck3.elapsed_time
+total_elapsed_minutes = truck1.total_time_in_min + truck2.total_time_in_min + truck3.total_time_in_min
 
 print(f"Total Trip Miles: {round(total_truck_miles, 2)}")
-#print(f"Total Trip Time: {total_elapsed_time}")
+print(f"Total Trip Time in Minutes: {round(total_elapsed_minutes, 2)}")
 
 main()
