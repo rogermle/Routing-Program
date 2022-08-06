@@ -11,6 +11,7 @@ from datetime import datetime
 from datetime import timedelta
 import time
 from HashTable import HashTable
+import math
 
 truck_departure_times = ['08:05', '09:15', '10:20']
 
@@ -105,16 +106,7 @@ def main():
     elif (choice == "2"):
         print("Date Time Lookup")
         time = input("Please enter a time after 08:00:00 to search package statuses (in military time e.g 0900): ")
-        desired_time = datetime.strptime(time, '%H:%M').time()
-        addressChangeTime = datetime.strptime('10:20', '%H:%M').time()
-
-        # Range function is Exclusive
-        for package_id in range(1, 41):
-            delivery_time = packageHashTable.lookup(package_id).delivery_time
-
-
-
-
+        print_package_at_time(time)
         print(time)
     elif (choice == "3"):
         exit()
@@ -122,10 +114,55 @@ def main():
         main()
 
 
+
+
+
+def print_package_at_time(time):
+    desired_time = datetime.combine(datetime.today().date(), datetime.strptime(time, '%H:%M').time())
+    addressChangeTime = datetime.combine(datetime.today().date(), datetime.strptime('10:20', '%H:%M').time())
+
+    if desired_time >= addressChangeTime:
+        packageHashTable.lookup(9).address = "410 S State St"
+        packageHashTable.lookup(9).zip_code = "84111"
+    elif desired_time < addressChangeTime:
+        packageHashTable.lookup(9).address = "300 State St"
+        packageHashTable.lookup(9).zip_code = "84103"
+
+
+    # Range function is Exclusive
+    for package_id in range(1, 41):
+        package = packageHashTable.lookup(package_id)
+        if package_id in payload1:
+            start_time = datetime.combine(datetime.today().date(), datetime.strptime(truck_departure_times[0], '%H:%M').time())
+            delivery_time = package.delivery_time
+        elif package_id in payload2:
+            start_time = datetime.combine(datetime.today().date(), datetime.strptime(truck_departure_times[1], '%H:%M').time())
+            delivery_time = package.delivery_time
+        elif package_id in payload3:
+            start_time = datetime.combine(datetime.today().date(), datetime.strptime(truck_departure_times[2], '%H:%M').time())
+            delivery_time = package.delivery_time
+
+        #En Route
+        if start_time < desired_time < delivery_time:
+            print(
+                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: En Route'
+            )
+        # Delivered
+        elif desired_time >= delivery_time:
+            print(
+                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: {package.status} \t| Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}'
+            )
+        # At Hub
+        else:
+            print(
+                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: At HUB '
+            )
+
 def pretty_print_package(id):
     package = packageHashTable.lookup(int(id))
     print(
-        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}')
+        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}'
+    )
 
 
 def print_all_packages(time):
@@ -150,7 +187,7 @@ def loadPackages():
             package = Package(id, address, city, state, zip_code, due_datetime, weight, notes)
 
             packageHashTable.insert(int(id), package)
-    print("Packages Loaded")
+    #print("Packages Loaded")
 
 
 def deliver_packages(truck):
@@ -194,10 +231,16 @@ def deliver_packages(truck):
             delivery_distance_matrix[next_package.id] = distanceBetween(truck.curr_location, next_package.address)
 
     if len(truck.payload) == 0:
-        truck.trip_total += distanceBetween(truck.curr_location, START_LOCATION)
-        truck.curr_location = START_LOCATION
-        truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
-        print("Returned to HUB!")
+        if truck.start_time == truck_departure_times[2]: # if you the final truck, stop after last delivery
+            truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+            print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and Abandoned at {truck.end_time}')
+        else:
+            final_distance = distanceBetween(truck.curr_location, START_LOCATION)
+            truck.trip_total += final_distance
+            truck.elapsed_time += final_distance / SPEED
+            truck.curr_location = START_LOCATION
+            truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+            print("Returned to HUB!")
 
 def distanceBetween(fromAddress, toAddress):
 
@@ -244,6 +287,7 @@ total_truck_miles = truck1.trip_total + truck2.trip_total + truck3.trip_total
 total_elapsed_minutes = truck1.total_time_in_min + truck2.total_time_in_min + truck3.total_time_in_min
 
 print(f"Total Trip Miles: {round(total_truck_miles, 2)}")
-print(f"Total Trip Time in Minutes: {round(total_elapsed_minutes, 2)}")
+print(f"Total Trip Time: {math.floor(total_elapsed_minutes / MINUTES_PER_HOUR)} hour(s) {math.floor(total_elapsed_minutes % MINUTES_PER_HOUR)} minutes(s)")
+print(f"Total Trip Time: {truck3.end_time} hour(s)  minutes(s)")
 
 main()

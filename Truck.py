@@ -16,4 +16,5 @@ class Truck:
         self.start_time = start_time
         self.last_package_delivery = self.start_time
         self.total_time_in_min = 0
+        self.end_time = 0
 
