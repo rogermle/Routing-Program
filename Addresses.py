@@ -1,5 +1,4 @@
 import csv
-#import data
 import datetime
 
 #Reads the csv files(desinations) and creates a dictionary from raw data to unique IDs for usage on the algorithm below.
