@@ -5,7 +5,11 @@
 from Package import Package
 from Truck import Truck
 import csv
+from datetime import date
+from datetime import time
 from datetime import datetime
+from datetime import timedelta
+import time
 from HashTable import HashTable
 
 # Package Constants
@@ -35,10 +39,6 @@ distanceData = 'csv/distances.csv'
 addressData = 'csv/addresses.csv'
 distance_dict = {}
 address_dict = {}
-
-total_truck_miles = 0
-total_elapsed_time = 0
-
 
 # Time Complexity O(N)
 # Space Complexity O(N)
@@ -82,7 +82,10 @@ loadDistanceData(distanceData)
 
 packageHashTable = HashTable()
 
+today = datetime.now()
+
 def main():
+    print(f"Today is {today}")
     print("Welcome to WGU Package Delivery")
     print("\r\n")
     print("Please select one of the following options:")
@@ -94,13 +97,14 @@ def main():
     choice = input("Please enter a valid number: ")
 
     if (choice == "1"):
-        print("Package Lookup")
+        #print("Package Lookup")
         id = input("Please enter a valid package ID (1-40): ")
         pretty_print_package(id)
     elif (choice == "2"):
         print("Date Time Lookup")
         time = input("Please enter a time after 08:00:00 to search package statuses (in military time e.g 0900): ")
-        # Truck.delivery_time = datetime.combine(datetime.today().day(), datetime.strptime(time, "%H:%M").time())
+
+
 
         print(time)
     elif (choice == "3"):
@@ -112,7 +116,7 @@ def main():
 def pretty_print_package(id):
     package = packageHashTable.lookup(int(id))
     print(
-        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status}')
+        f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M %p")}')
 
 
 def print_all_packages(time):
@@ -143,15 +147,15 @@ def loadPackages():
 
 
 def deliver_packages(truck):
+    truck.elapsed_time = 0.0
     delivery_distance_matrix = {}
-    print("Package Delivery!")
+    #print("Package Delivery!")
     # Get Closest Package and then deliver packages
-    #print(minDistanceFrom(truck.curr_location, truck.payload))
-    #payload_copy[]
+
     for package_id in range(len(truck.payload)):
         package = truck.payload[package_id]
+        package.status = "En Route"
         delivery_distance_matrix[package.id] = distanceBetween(truck.curr_location, package.address)
-        # package[Constant.STATUS] = 'In Transit'
 
     for delivery_pair in range(len(delivery_distance_matrix)):
         keys = list(delivery_distance_matrix.keys())
@@ -160,17 +164,16 @@ def deliver_packages(truck):
 
         closest_package = truck.payload[closest_package_index]
 
-        # self.last_package_delivery =
         truck.trip_total += values[closest_package_index]
-        truck.elapsed_time += int(values[closest_package_index])/SPEED # Integer math to keep conversions easier
+        truck.elapsed_time += values[closest_package_index]/SPEED
         truck.curr_location = closest_package.address
-        print(closest_package)
+        #print(closest_package)
         closest_package.status = "Delivered"
-        closest_package.delivery_time = 12
+        closest_package.delivery_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
         #Update Global
         packageHashTable.insert(closest_package.id, closest_package)
-        print("Delivered Package!")
-        print(truck.trip_total)
+        pretty_print_package(closest_package.id)
+        #print(truck.trip_total)
         truck.payload.remove(closest_package)
         del delivery_distance_matrix[keys[closest_package_index]]
 
@@ -182,7 +185,7 @@ def deliver_packages(truck):
     if len(truck.payload) == 0:
         truck.trip_total += distanceBetween(truck.curr_location, START_LOCATION)
         truck.curr_location = START_LOCATION
-        truck.end_time = '' #datetime.strptime(truck.start_time, '%H:%M')
+        truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
         print("Returned to HUB!")
 
 def distanceBetween(fromAddress, toAddress):
@@ -195,10 +198,10 @@ def distanceBetween(fromAddress, toAddress):
 def loadTruck(truck, packages):
     for package_id in packages:
         package = packageHashTable.lookup(int(package_id))
-        print(package)
+        #print(package)
         package.status = 'Loaded at HUB'
         truck.payload.append(package)
-    print("Truck Loaded!")
+    #print("Truck Loaded!")
 
 
 loadPackages()
@@ -208,9 +211,15 @@ truck1 = Truck('08:05')
 truck2 = Truck('09:15')
 truck3 = Truck('10:20')
 
-payload1 = [20, 14, 19, 16, 34, 21, 15, 39, 29, 4, 40, 1, 35, 13, 27]
-payload2 = [3, 10, 5, 6, 38, 8, 37, 18, 11, 31, 30, 36, 23, 32, 12]
-payload3 = [2, 7, 24, 33, 22, 28, 9, 26, 25, 17]
+# Package to Adjust Address
+
+addressChange = packageHashTable.lookup(9)
+addressChange.address = "410 S State St"
+addressChange.zip_code = "84111"
+
+payload1 = [13, 39, 27, 35, 4, 40, 20, 21, 19, 14, 15, 16, 34, 29, 1]
+payload2 = [3, 8, 30, 18, 36, 37, 38, 5, 12, 23, 11, 10, 31, 32, 6]
+payload3 = [28, 2, 33, 7, 17, 22, 24, 25, 26, 9]
 
 loadTruck(truck1, payload1)
 loadTruck(truck2, payload2)
@@ -221,9 +230,9 @@ deliver_packages(truck2)
 deliver_packages(truck3)
 
 total_truck_miles = truck1.trip_total + truck2.trip_total + truck3.trip_total
-total_elapsed_time = truck1.elapsed_time + truck2.elapsed_time + truck3.elapsed_time
+#total_elapsed_time = truck1.elapsed_time + truck2.elapsed_time + truck3.elapsed_time
 
 print(f"Total Trip Miles: {round(total_truck_miles, 2)}")
-print(f"Total Trip Time: {total_elapsed_time}")
+#print(f"Total Trip Time: {total_elapsed_time}")
 
 main()
