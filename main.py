@@ -43,6 +43,9 @@ addressData = 'csv/addresses.csv'
 distance_dict = {}
 address_dict = {}
 
+#Global Mileage Log at a specific time
+distance_at_time = {}
+
 # Time Complexity O(N)
 # Space Complexity O(N)
 def loadAddressData(addressData):
@@ -93,21 +96,25 @@ def main():
     print("\r\n")
     print("Please select one of the following options:")
     print("\r\n")
-    print("Package Look up by ID Press 1")
-    print("All Packages by Time in HH:MM format Press 2")
-    print("Exit Application Press 3")
+    print("Press 1 for Package Look up by ID ")
+    print("Press 2 for All Packages by Time in HH:MM format ")
+    print("Press 3 to Exit Application")
 
     choice = input("Please enter a valid number: ")
 
     if (choice == "1"):
         #print("Package Lookup")
         id = input("Please enter a valid package ID (1-40): ")
-        pretty_print_package(id)
+        try:
+            pretty_print_package(id)
+        except:
+            print("Invalid Package #")
+            main()
     elif (choice == "2"):
-        print("Date Time Lookup")
+        #print("Date Time Lookup")
         time = input("Please enter a time after 08:00:00 to search package statuses (in military time e.g 0900): ")
         print_package_at_time(time)
-        print(time)
+        #print(time)
     elif (choice == "3"):
         exit()
     else:
@@ -128,6 +135,7 @@ def print_package_at_time(time):
         packageHashTable.lookup(9).address = "300 State St"
         packageHashTable.lookup(9).zip_code = "84103"
 
+    mileage_log(time)
 
     # Range function is Exclusive
     for package_id in range(1, 41):
@@ -145,17 +153,17 @@ def print_package_at_time(time):
         #En Route
         if start_time < desired_time < delivery_time:
             print(
-                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: En Route'
+                f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: En Route'
             )
         # Delivered
         elif desired_time >= delivery_time:
             print(
-                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: {package.status} \t| Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}'
+                f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: {package.status} | Delivery Time: {package.delivery_time.strftime("%I:%M:%S %p")}'
             )
         # At Hub
         else:
             print(
-                f' ID: {package.id} \t| Address: {package.address} \t| City: {package.city} \t| Zip: {package.zip_code} \t| Due Date: {package.due_datetime} \t| Weight: {package.weight} \t| Status: At HUB '
+                f' ID: {package.id} | Address: {package.address} | City: {package.city} | Zip: {package.zip_code} | Due Date: {package.due_datetime} | Weight: {package.weight} | Status: At HUB'
             )
 
 def pretty_print_package(id):
@@ -165,8 +173,20 @@ def pretty_print_package(id):
     )
 
 
-def print_all_packages(time):
-    print("Packages at {time}: \r\n")
+def mileage_log(time):
+    desired_time =  datetime.combine(datetime.today().date(), datetime.strptime(time, '%H:%M').time())
+
+    total_mileage = 0
+    for delivery_time in distance_at_time:
+        if delivery_time <= desired_time:
+            total_mileage += distance_at_time[delivery_time]
+        else:
+            break
+
+    print(f'Total Truck Mileage at {desired_time} is {total_mileage} miles')
+
+
+
 
 
 def loadPackages():
@@ -189,7 +209,8 @@ def loadPackages():
             packageHashTable.insert(int(id), package)
     #print("Packages Loaded")
 
-
+# Time Complexity O(N^3)
+# Space Complexity O(N^2)
 def deliver_packages(truck):
     truck.elapsed_time = 0.0
     delivery_distance_matrix = {}
@@ -208,39 +229,49 @@ def deliver_packages(truck):
 
         closest_package = truck.payload[closest_package_index]
 
+        # print(closest_package)
+        # Deliver the Package
+        delivered_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+        closest_package.status = "Delivered"
+        closest_package.delivery_time = delivered_time
+        # Update Package Delivery in Global
+        packageHashTable.insert(closest_package.id, closest_package)
+        pretty_print_package(closest_package.id)
+
+        #Update Truck position, time and distance calculations
+        distance_at_time[delivered_time] = values[closest_package_index]
         truck.trip_total += values[closest_package_index]
         truck.elapsed_time += values[closest_package_index]/SPEED
         truck.total_time_in_min += values[closest_package_index]/SPEED * SECONDS_PER_MIN
         truck.curr_location = closest_package.address
-        #print(closest_package)
-        delivered_time = datetime.combine(datetime.today().date(),
-        datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
-        closest_package.status = "Delivered"
-        closest_package.delivery_time = delivered_time
-        #Update Global
-        packageHashTable.insert(closest_package.id, closest_package)
-        pretty_print_package(closest_package.id)
+
         #print(truck.trip_total)
+        # Remove Package from Truck Payload
         truck.payload.remove(closest_package)
         truck.last_package_delivery = delivered_time
-        del delivery_distance_matrix[keys[closest_package_index]]
+        del delivery_distance_matrix[keys[closest_package_index]] # Delete the entry from our Matrix
 
+        # Recalculate next nearest package and update the matrix
         # Update distance matrix location after each delivery
         for package in range(len(truck.payload)):
             next_package = truck.payload[package]
             delivery_distance_matrix[next_package.id] = distanceBetween(truck.curr_location, next_package.address)
 
+    # No More Packages, Return to Base, unless you are truck 3
+    # Delivery is done once all packages are delivered
     if len(truck.payload) == 0:
         if truck.start_time == truck_departure_times[2]: # if you the final truck, stop after last delivery
             truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
-            print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and Abandoned at {truck.end_time}')
+            print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and Abandoned at {truck.end_time} after driving {round(truck.trip_total,2)} miles.')
         else:
+            # Return to base code for Truck 1 and Truck 2
             final_distance = distanceBetween(truck.curr_location, START_LOCATION)
             truck.trip_total += final_distance
             truck.elapsed_time += final_distance / SPEED
             truck.curr_location = START_LOCATION
-            truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
-            print("Returned to HUB!")
+            truck.end_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+            distance_at_time[truck.end_time] = final_distance
+            print(f'Returned to HUB! at {truck.end_time} after driving {round(truck.trip_total,2)} miles!')
 
 def distanceBetween(fromAddress, toAddress):
 
@@ -288,6 +319,5 @@ total_elapsed_minutes = truck1.total_time_in_min + truck2.total_time_in_min + tr
 
 print(f"Total Trip Miles: {round(total_truck_miles, 2)}")
 print(f"Total Trip Time: {math.floor(total_elapsed_minutes / MINUTES_PER_HOUR)} hour(s) {math.floor(total_elapsed_minutes % MINUTES_PER_HOUR)} minutes(s)")
-print(f"Total Trip Time: {truck3.end_time} hour(s)  minutes(s)")
 
 main()
