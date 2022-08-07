@@ -40,7 +40,7 @@ To run code ```python main.py``` in terminal
 
 A CLI menu will appear
 
-    ![Running](screenshots/running.jpg)
+![Running](screenshots/running.jpg)
 ## Credits
 
 Roger Le
