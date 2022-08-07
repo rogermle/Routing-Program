@@ -252,6 +252,16 @@ def deliver_packages(truck):
             distance_at_time[truck.end_time] = final_distance
             print(f'Returned to HUB! at {truck.end_time} after driving {round(truck.trip_total,2)} miles!')
 
+
+
+# Returns float reprsenting distance between two addresess
+
+# Time Complexity O(1)
+# Space Complexity O(n)
+
+# Loading the address and distance data, we create a matrix so that if the fromAddress and toAddress are reversed
+# The same value will return
+# This is handled during import instead of having to rely on code to return the "inverse distance"
 def distanceBetween(fromAddress, toAddress):
 
     try:

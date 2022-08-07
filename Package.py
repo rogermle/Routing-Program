@@ -1,3 +1,10 @@
+
+
+
+
+# Used to encapsulate the Package object
+
+# Working with raw values is not preferred experience
 class Package:
     def __init__(self, id, address, city, state, zip_code, due_datetime, weight, notes):
         self.id = id

@@ -2,6 +2,8 @@ from datetime import datetime
 
 import Constant
 
+# Helps Encapuslate a "Truck" by creating a truck model
+#Values such as speed, current payload and other tracking metrics are built into the truck class
 class Truck:
     def __init__(self, start_time):
         #print("Truck Class")
