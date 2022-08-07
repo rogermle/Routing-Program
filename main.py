@@ -183,7 +183,7 @@ def mileage_log(time):
         else:
             break
 
-    print(f'Total Truck Mileage at {desired_time} is {total_mileage} miles')
+    print(f'Total Truck Mileage at {desired_time} is {round(total_mileage, 2)} miles')
 
 
 
