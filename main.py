@@ -5,11 +5,8 @@
 from Package import Package
 from Truck import Truck
 import csv
-from datetime import date
-from datetime import time
 from datetime import datetime
 from datetime import timedelta
-import time
 from HashTable import HashTable
 import math
 
@@ -209,7 +206,7 @@ def loadPackages():
             packageHashTable.insert(int(id), package)
     #print("Packages Loaded")
 
-# Time Complexity O(N^3)
+# Time Complexity O(N^2)
 # Space Complexity O(N^2)
 def deliver_packages(truck):
     truck.elapsed_time = 0.0
@@ -304,9 +301,9 @@ addressChange = packageHashTable.lookup(9)
 addressChange.address = "410 S State St"
 addressChange.zip_code = "84111"
 
-payload1 = [13, 39, 27, 35, 4, 40, 20, 21, 19, 14, 15, 16, 34, 29, 1]
-payload2 = [3, 8, 30, 18, 36, 37, 38, 5, 12, 23, 11, 10, 31, 32, 6]
-payload3 = [28, 2, 33, 7, 17, 22, 24, 25, 26, 9]
+payload1 = [1, 35, 27, 39, 4, 40, 19, 20, 21, 14, 15, 16, 34, 29, 13]
+payload2 = [3, 5, 30, 18, 36, 37, 38, 8, 11, 23, 12, 10, 32, 31, 6]
+payload3 = [2, 28, 33, 9, 17, 22, 24, 25, 26, 7]
 
 loadTruck(truck1, payload1)
 loadTruck(truck2, payload2)

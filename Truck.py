@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import Package
-import Addresses
 import Constant
 
 class Truck:
