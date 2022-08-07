@@ -2,6 +2,7 @@
 # C950 Performance Assessment
 # Student ID: 1060770
 
+import Constant
 from Package import Package
 from Truck import Truck
 import csv
@@ -11,28 +12,6 @@ from HashTable import HashTable
 import math
 
 truck_departure_times = ['08:05', '09:15', '10:20']
-
-# Package Constants
-
-ID = 0
-ADDRESS = 1
-CITY = 2
-STATE = 3
-ZIP_CODE = 4
-DUE_DATETIME = 5
-WEIGHT = 6
-NOTES = 7
-STATUS = 8
-DELIVERY_START_TIME = 9
-
-AT_HUB_STATUS = "AT HUB"
-
-# Truck Constants
-START_LOCATION = '4001 South 700 East'
-SPEED = 18
-MINUTES_PER_HOUR = 60
-SECONDS_PER_MIN = 60
-PACKAGE_LIMIT = 16
 
 # Reads the csv files(desinations) and creates a dictionary from raw data to unique IDs for usage on the algorithm below.
 distanceData = 'csv/distances.csv'
@@ -192,14 +171,14 @@ def loadPackages():
     with open('csv/packages.csv') as packages_file:
         csv_reader = csv.reader(packages_file, delimiter=',')
         for data in csv_reader:
-            id = data[ID]
-            address = data[ADDRESS]
-            city = data[CITY]
-            state = data[STATE]
-            zip_code = data[ZIP_CODE]
-            due_datetime = data[DUE_DATETIME]
-            weight = data[WEIGHT]
-            notes = data[NOTES]
+            id = data[Constant.ID]
+            address = data[Constant.ADDRESS]
+            city = data[Constant.CITY]
+            state = data[Constant.STATE]
+            zip_code = data[Constant.ZIP_CODE]
+            due_datetime = data[Constant.DUE_DATETIME]
+            weight = data[Constant.WEIGHT]
+            notes = data[Constant.NOTES]
             # Create Package object
             package = Package(id, address, city, state, zip_code, due_datetime, weight, notes)
 
@@ -229,8 +208,8 @@ def deliver_packages(truck):
         # print(closest_package)
         # Update Truck position, time and distance calculations
         truck.trip_total += values[closest_package_index]
-        truck.elapsed_time += values[closest_package_index] / SPEED
-        truck.total_time_in_min += values[closest_package_index] / SPEED * SECONDS_PER_MIN
+        truck.elapsed_time += values[closest_package_index] / Constant.SPEED
+        truck.total_time_in_min += values[closest_package_index] / Constant.SPEED * Constant.SECONDS_PER_MIN
         truck.curr_location = closest_package.address
 
         arrival_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
@@ -264,10 +243,10 @@ def deliver_packages(truck):
             print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and abandoned at {truck.end_time} after driving {round(truck.trip_total,2)} miles.')
         else:
             # Return to base code for Truck 1 and Truck 2
-            final_distance = distanceBetween(truck.curr_location, START_LOCATION)
+            final_distance = distanceBetween(truck.curr_location, Constant.START_LOCATION)
             truck.trip_total += final_distance
-            truck.elapsed_time += final_distance / SPEED
-            truck.curr_location = START_LOCATION
+            truck.elapsed_time += final_distance / Constant.SPEED
+            truck.curr_location = Constant.START_LOCATION
             truck.end_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
             distance_at_time[truck.end_time] = final_distance
             print(f'Returned to HUB! at {truck.end_time} after driving {round(truck.trip_total,2)} miles!')
@@ -317,6 +296,6 @@ total_truck_miles = truck1.trip_total + truck2.trip_total + truck3.trip_total
 total_elapsed_minutes = truck1.total_time_in_min + truck2.total_time_in_min + truck3.total_time_in_min
 
 print(f"Total Trip Miles: {round(total_truck_miles, 2)}")
-print(f"Total Trip Time: {math.floor(total_elapsed_minutes / MINUTES_PER_HOUR)} hour(s) {math.floor(total_elapsed_minutes % MINUTES_PER_HOUR)} minutes(s)")
+print(f"Total Trip Time: {math.floor(total_elapsed_minutes / Constant.MINUTES_PER_HOUR)} hour(s) {math.floor(total_elapsed_minutes % Constant.MINUTES_PER_HOUR)} minutes(s)")
 
 main()
