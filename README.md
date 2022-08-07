@@ -32,25 +32,22 @@ If your README is long, add a table of contents to make it easy for users to fin
 
 ## Installation
 
-What are the steps required to install your project? Provide a step-by-step description of how to get the development environment running.
+All standard Python Library code. No expected installs
 
 ## Usage
 
-Provide instructions and examples for use. Include screenshots as needed.
+To run code ```python main.py``` in terminal
 
-To add a screenshot, create an `assets/images` folder in your repository and upload your screenshot to it. Then, using the relative filepath, add it to your README using the following syntax:
+A CLI menu will appear
 
-    ```md
-    ![alt text](assets/images/screenshot.png)
-    ```
-
+    ![Running](screenshots/running.jpg)
 ## Credits
 
-List your collaborators, if any, with links to their GitHub profiles.
+Roger Le
 
-If you used any third-party assets that require attribution, list the creators with links to their primary web presence in this section.
+WGU ID # 1060770
 
-If you followed tutorials, include links to those here as well.
+Email: rle12@wgu.edu
 
 ## License
 
@@ -63,10 +60,10 @@ If you followed tutorials, include links to those here as well.
 
 ## Features
 
-If your project has a lot of features, list them here.
+Command Line Interface Driven Application
 
-## How to Contribute
+Will deliver 40 packages all over Salt Lake City
 
-## Tests
+Select Options from the Menu Displayed
 
-Go the extra mile and write tests for your application. Then provide examples on how to run them here.
+![Running](screenshots/menu_options.jpg)
