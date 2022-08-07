@@ -173,6 +173,9 @@ def pretty_print_package(id):
     )
 
 
+# Time Complexity O(N)
+# Space Complexity O(1)
+# Reads from global mileage log and determines a total
 def mileage_log(time):
     desired_time =  datetime.combine(datetime.today().date(), datetime.strptime(time, '%H:%M').time())
 
@@ -184,9 +187,6 @@ def mileage_log(time):
             break
 
     print(f'Total Truck Mileage at {desired_time} is {round(total_mileage, 2)} miles')
-
-
-
 
 
 def loadPackages():
@@ -230,25 +230,27 @@ def deliver_packages(truck):
         closest_package = truck.payload[closest_package_index]
 
         # print(closest_package)
+        # Update Truck position, time and distance calculations
+        truck.trip_total += values[closest_package_index]
+        truck.elapsed_time += values[closest_package_index] / SPEED
+        truck.total_time_in_min += values[closest_package_index] / SPEED * SECONDS_PER_MIN
+        truck.curr_location = closest_package.address
+
+        arrival_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
+        distance_at_time[arrival_time] = values[closest_package_index]
+
         # Deliver the Package
-        delivered_time = datetime.combine(datetime.today().date(),datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
         closest_package.status = "Delivered"
-        closest_package.delivery_time = delivered_time
+        closest_package.delivery_time = arrival_time
         # Update Package Delivery in Global
         packageHashTable.insert(closest_package.id, closest_package)
         pretty_print_package(closest_package.id)
 
-        #Update Truck position, time and distance calculations
-        distance_at_time[delivered_time] = values[closest_package_index]
-        truck.trip_total += values[closest_package_index]
-        truck.elapsed_time += values[closest_package_index]/SPEED
-        truck.total_time_in_min += values[closest_package_index]/SPEED * SECONDS_PER_MIN
-        truck.curr_location = closest_package.address
-
         #print(truck.trip_total)
+
         # Remove Package from Truck Payload
         truck.payload.remove(closest_package)
-        truck.last_package_delivery = delivered_time
+        truck.last_package_delivery = arrival_time
         del delivery_distance_matrix[keys[closest_package_index]] # Delete the entry from our Matrix
 
         # Recalculate next nearest package and update the matrix
@@ -262,7 +264,7 @@ def deliver_packages(truck):
     if len(truck.payload) == 0:
         if truck.start_time == truck_departure_times[2]: # if you the final truck, stop after last delivery
             truck.end_time = datetime.combine(datetime.today().date(), datetime.strptime(truck.start_time, '%H:%M').time()) + timedelta(hours=truck.elapsed_time)
-            print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and Abandoned at {truck.end_time} after driving {round(truck.trip_total,2)} miles.')
+            print(f'Delivery Complete, Truck 3 Located at {truck.curr_location} and abandoned at {truck.end_time} after driving {round(truck.trip_total,2)} miles.')
         else:
             # Return to base code for Truck 1 and Truck 2
             final_distance = distanceBetween(truck.curr_location, START_LOCATION)
