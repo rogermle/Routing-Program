@@ -56,6 +56,12 @@ class HashTable:
                 return kv[1]  # value
         return None
 
+    # Remove for a package
+    # Pre Condition: Valid or Invalid Key as a parameter
+    # Post Condition: Removes value if valid key
+    # Time Complexity: O(N)
+    # Space Complexity: O(N)
+
     def remove(self, key):
         # get the bucket list where this item will be removed from.
         bucket = hash(key) % len(self.table)
@@ -66,11 +72,3 @@ class HashTable:
             # print (key_value)
             if kv[0] == key:
                 bucket_list.remove([kv[0], kv[1]])
-
-    # Returns entire hashmap if successful
-    # Pre Condition: None
-    # Post Condition: Returns all values in Hash Table
-    # Time Complexity: O(N)
-    # Space Complexity: O(N)
-    def all_table(self):
-        return self.table
