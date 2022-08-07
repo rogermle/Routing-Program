@@ -52,7 +52,8 @@ def loadDistanceData(distanceData):
                 distance_dict[rev_index] = distances[col][row]
     # print(distance_dict)
 
-
+# Time Complexity O(1)
+# Space Complexity O(n)
 def distanceBetween(fromAddress, toAddress):
     try:
         return distance_dict[f'{address_dict[fromAddress]}{address_dict[toAddress]}']
@@ -258,6 +259,8 @@ def distanceBetween(fromAddress, toAddress):
     except:
         print("Error Condition: Invalid Address")
 
+# Time Complexity O(n)
+# Space Complexity O(n)
 def loadTruck(truck, packages):
     for package_id in packages:
         package = packageHashTable.lookup(int(package_id))
